@@ -1,4 +1,4 @@
-import { createShapeId, Tldraw, Vec } from "tldraw";
+import { createShapeId, IndexKey, Tldraw, Vec } from "tldraw";
 import { layout } from "./utils/layout";
 import { BoxShape, BoxShapeUtil } from "./shapes/box";
 import { LayoutBindingUtil } from "./bindings/layout";
@@ -41,18 +41,23 @@ export const TldrawView = () => {
         const fourthId = createShapeId("fourth");
         const fifthId = createShapeId("fifth");
 
-        editor.createShape({
+        editor.createShape<BoxShape>({
           type: "box",
           id: rootId,
           x: -200 / 2,
           y: -200 / 2,
           props: {
-            index: "a0",
+            index: "a0" as IndexKey,
             color: "lightgray",
             w: 200,
             h: 200,
             fullWidth: false,
             fullHeight: false,
+            gap: 8,
+            pl: 8,
+            pr: 8,
+            pt: 8,
+            pb: 8,
           },
         });
 
@@ -72,6 +77,7 @@ export const TldrawView = () => {
           props: {
             index: "a3",
             color: "lightblue",
+            gap: 12,
           },
         });
 

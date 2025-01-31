@@ -28,7 +28,13 @@ export const layout = (
     (s) => s.id === currentShape.id
   )!;
 
-  editor.updateShape(calculatedCurrentShape);
+  editor.updateShape({
+    ...calculatedCurrentShape,
+    props: {
+      ...calculatedCurrentShape.props,
+      dragging: false,
+    },
+  });
   childShapes.forEach((s) => {
     editor.bringToFront([s]);
     layout(editor, s, calculatedCurrentShape);
@@ -51,13 +57,25 @@ export const calculateChildLayouts = (
     }
   );
 
+  const totalGapWidth =
+    Math.max(siblingShapes.length - 1, 0) * parentShape.props.gap;
+
+  const parentShapeWidth =
+    parentShape.props.w -
+    parentShape.props.pl -
+    parentShape.props.pr -
+    totalGapWidth;
+  console.log("parentShape", parentShape);
+  const parentShapeHeight =
+    parentShape.props.h - parentShape.props.pt - parentShape.props.pb;
+
   const absoluteWidthSiblingShapes = siblingShapes.filter((s) => {
     return !s.props.fullWidth;
   });
   const totalAbsoluteWidth = absoluteWidthSiblingShapes.reduce((acc, s) => {
     return acc + s.props.w;
   }, 0);
-  const remainingAbsoluteWidth = parentShape.props.w - totalAbsoluteWidth;
+  const remainingAbsoluteWidth = parentShapeWidth - totalAbsoluteWidth;
   const relativeWidthSiblingShapes = siblingShapes.filter((s) => {
     return s.props.fullWidth;
   });
@@ -79,7 +97,7 @@ export const calculateChildLayouts = (
     const siblingShape = siblingShapes[i];
     const calculatedX = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.w,
-      0
+      parentShape.props.pl + i * parentShape.props.gap
     );
     const calculatedY = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.h,
@@ -89,12 +107,16 @@ export const calculateChildLayouts = (
       ? (1 / relativeWidthSiblingShapes.length) * remainingAbsoluteWidth
       : siblingShape.props.w;
     const calculatedHeight = siblingShape.props.fullHeight
-      ? parentShape.props.h - 10
+      ? parentShapeHeight
       : siblingShape.props.h;
+
+    console.log("arentShape.props.pl", parentShape.props.pl);
 
     const { x, y } = editor
       .getShapePageTransform(parentShape)
-      .applyToPoint(new Vec(calculatedX, 0));
+      .applyToPoint(new Vec(calculatedX, parentShape.props.pt));
+
+    console.log("x", x, "y", y);
 
     calculatedSiblingShapes.push({
       ...siblingShape,

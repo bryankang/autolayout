@@ -28,14 +28,20 @@ import { DroppableShape } from "./droppable";
 
 export type BoxShapeProps = {
   index: IndexKey;
-  color: string;
   w: number;
   h: number;
   fullWidth: boolean;
   fullHeight: boolean;
-  placeholder: boolean;
-  originalX: number;
-  originalY: number;
+  originalY: number; // used for translating children
+  originalX: number; // used for translating children
+  direction: string; // horizontal or vertical
+  gap: number;
+  pl: number;
+  pr: number;
+  pt: number;
+  pb: number;
+  color: string;
+  dragging: boolean;
 };
 
 export type BoxShape = TLBaseShape<"box", BoxShapeProps>;
@@ -44,14 +50,20 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   static override type = "box" as const;
   static override props: RecordProps<BoxShape> = {
     index: T.any,
-    color: T.string,
     w: T.number,
     h: T.number,
     fullWidth: T.boolean,
     fullHeight: T.boolean,
-    placeholder: T.boolean,
     originalX: T.number,
     originalY: T.number,
+    direction: T.string,
+    gap: T.number,
+    pl: T.number,
+    pr: T.number,
+    pt: T.number,
+    pb: T.number,
+    color: T.string,
+    dragging: T.boolean,
   };
 
   static naturalPadding = 8;
@@ -59,14 +71,20 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   override getDefaultProps() {
     return {
       index: "a0" as IndexKey,
-      color: "lightpink",
       w: 0,
       h: 0,
       fullWidth: true,
       fullHeight: true,
-      placeholder: false,
       originalX: 0,
       originalY: 0,
+      direction: "horizontal" as const,
+      gap: 0,
+      pl: 0,
+      pr: 0,
+      pt: 0,
+      pb: 0,
+      color: "lightpink",
+      dragging: false,
     };
   }
 
@@ -79,7 +97,17 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   // }
 
   override onResize(shape: BoxShape, info: TLResizeInfo<any>) {
-    const result = resizeBox(shape, info);
+    // resizeBox strips the props, so we need to add them back in
+    const resizeResult = resizeBox(shape, info);
+    const result = {
+      ...shape,
+      ...resizeResult,
+      props: {
+        ...shape.props,
+        ...resizeResult.props,
+      },
+    };
+    console.log("shape", shape);
     if (shape.id === "shape:root") {
       this.resizeSymmetrically(result, info);
     }
@@ -206,10 +234,18 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
         ...s.props,
         originalX: s.x,
         originalY: s.y,
+        dragging: true,
       },
     }));
-    this.editor.updateShapes(updatedChildShapes);
+    const updatedShape = {
+      ...shape,
+      props: {
+        ...shape.props,
+        dragging: true,
+      },
+    };
 
+    this.editor.updateShapes([updatedShape, ...updatedChildShapes]);
     this.bringAllToFront(shape);
   }
 
@@ -298,6 +334,26 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     deleteDroppableShapes(this.editor);
     const parentShape = getParentShape(this.editor, currentShape, "layout");
     layout(this.editor, parentShape as BoxShape);
+
+    // const childShapes = this.getAllChildShapes(currentShape);
+    // const updatedChildShapes = childShapes.map((s) => ({
+    //   ...s,
+    //   props: {
+    //     ...s.props,
+    //     originalX: s.x,
+    //     originalY: s.y,
+    //     dragging: false,
+    //   },
+    // }));
+    // const updatedShape = {
+    //   ...currentShape,
+    //   props: {
+    //     ...currentShape.props,
+    //     dragging: false,
+    //   },
+    // };
+
+    // this.editor.updateShapes([updatedShape, ...updatedChildShapes]);
   }
 
   override getGeometry(shape: BoxShape) {
@@ -315,6 +371,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
           backgroundColor: shape.props.color,
           width: shape.props.w,
           height: shape.props.h,
+          opacity: shape.props.dragging ? 0 : 1,
         }}
       />
     );
