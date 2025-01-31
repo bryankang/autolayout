@@ -42,11 +42,12 @@ export const TldrawView = () => {
         const fifthId = createShapeId("fifth");
 
         editor.createShape({
-          id: rootId,
           type: "box",
+          id: rootId,
           x: -200 / 2,
           y: -200 / 2,
           props: {
+            index: "a0",
             color: "lightgray",
             w: 200,
             h: 200,
@@ -60,9 +61,7 @@ export const TldrawView = () => {
           type: "box",
           x: 0,
           y: 0,
-          props: {
-            index: "a2",
-          },
+          props: { index: "a2" },
         });
 
         editor.createShape({
@@ -95,6 +94,7 @@ export const TldrawView = () => {
           x: 0,
           y: 0,
           props: {
+            index: "a5",
             color: "teal",
           },
         });
@@ -105,6 +105,7 @@ export const TldrawView = () => {
           x: 0,
           y: 0,
           props: {
+            index: "a6",
             color: "purple",
           },
         });
@@ -140,6 +141,9 @@ export const TldrawView = () => {
         });
 
         const rootShape = editor.getShape(rootId) as BoxShape;
+        const firstShape = editor.getShape(firstId) as BoxShape;
+
+        console.log("firstShape", firstShape);
 
         layout(editor, rootShape);
 

@@ -15,7 +15,7 @@ export type DroppableShapeProps = {
   active: boolean;
 };
 
-export type DroppableShape = TLBaseShape<"element", DroppableShapeProps>;
+export type DroppableShape = TLBaseShape<"droppable", DroppableShapeProps>;
 
 export class DroppableShapeUtil extends BaseBoxShapeUtil<DroppableShape> {
   static override type = "droppable" as const;
@@ -28,7 +28,8 @@ export class DroppableShapeUtil extends BaseBoxShapeUtil<DroppableShape> {
 
   override getDefaultProps() {
     return {
-      index: "a1" as IndexKey,
+      // can't use base shape's index for some reason
+      index: "a0" as IndexKey,
       w: 0,
       h: 0,
       active: false,
@@ -51,9 +52,10 @@ export class DroppableShapeUtil extends BaseBoxShapeUtil<DroppableShape> {
     return (
       <HTMLContainer
         style={{
-          backgroundColor: "yellow",
           width: shape.props.w,
           height: shape.props.h,
+          backgroundColor: "blue",
+          opacity: shape.props.active ? 1 : 0,
         }}
       />
     );

@@ -18,10 +18,17 @@ import {
   Vec,
 } from "tldraw";
 import { layout } from "../utils/layout";
+import {
+  createDroppableShapes,
+  deleteDroppableShapes,
+  getClosestDroppableShape,
+} from "../utils/droppable";
+import { getParentShape } from "../utils/common";
+import { DroppableShape } from "./droppable";
 
 export type BoxShapeProps = {
-  color: string;
   index: IndexKey;
+  color: string;
   w: number;
   h: number;
   fullWidth: boolean;
@@ -31,13 +38,13 @@ export type BoxShapeProps = {
   originalY: number;
 };
 
-export type BoxShape = TLBaseShape<"element", BoxShapeProps>;
+export type BoxShape = TLBaseShape<"box", BoxShapeProps>;
 
 export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   static override type = "box" as const;
   static override props: RecordProps<BoxShape> = {
-    color: T.string,
     index: T.any,
+    color: T.string,
     w: T.number,
     h: T.number,
     fullWidth: T.boolean,
@@ -49,14 +56,10 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
 
   static naturalPadding = 8;
 
-  // Dimensions in numeric values after calculating % values
-  // intrinsicWidth = 0;
-  // intrinsicHeight = 0;
-
   override getDefaultProps() {
     return {
+      index: "a0" as IndexKey,
       color: "lightpink",
-      index: "a1" as IndexKey,
       w: 0,
       h: 0,
       fullWidth: true,
@@ -181,16 +184,6 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     });
   }
 
-  // override onClick(shape: BoxShape) {
-  // if (shape.id === "shape:root") {
-  //   return;
-  // }
-  // const childShapes = this.getAllChildShapes(shape);
-  // setTimeout(() => {
-  //   this.editor.setSelectedShapes([shape, ...childShapes]);
-  // }, 0);
-  // }
-
   private bringAllToFront(shape: BoxShape) {
     this.editor.bringToFront([shape]);
     const childBindings = this.editor.getBindingsFromShape(shape, "layout");
@@ -198,16 +191,13 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     childShapes.forEach((s) => this.bringAllToFront(s as BoxShape));
   }
 
-  // private translateAll(shape: BoxShape) {
-  //   const childBindings = this.editor.getBindingsFromShape(shape, "layout");
-  //   const childShapes = childBindings.map((b) => this.editor.getShape(b.toId));
-  //   childShapes.forEach((s) => this.editor.translateShape(s as BoxShape));
-  // }
-
   override onTranslateStart(shape: BoxShape) {
     if (shape.id === "shape:root") {
       return shape;
     }
+
+    const parentShape = getParentShape(this.editor, shape, "layout");
+    createDroppableShapes(this.editor, parentShape!);
 
     const childShapes = this.getAllChildShapes(shape);
     const updatedChildShapes = childShapes.map((s) => ({
@@ -240,123 +230,78 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     this.editor.updateShapes(updatedChildShapes);
   }
 
-  override onTranslate(shape: BoxShape, current: BoxShape) {
-    if (shape.id === "shape:root") {
-      return shape;
+  override onTranslate(initialShape: BoxShape, currentShape: BoxShape) {
+    if (initialShape.id === "shape:root") {
+      return initialShape;
     }
 
-    const childShapes = this.getAllChildShapes(shape);
-    setTimeout(() => {
-      this.editor.setSelectedShapes([shape, ...childShapes]);
-    }, 0);
+    const unidirectionalCurrentShape = {
+      ...currentShape,
+      y: initialShape.y,
+    };
 
-    console.log("translating", shape, current);
+    const droppableShapes = this.editor
+      .getCurrentPageShapesSorted()
+      .filter((s) => s.type === "droppable") as DroppableShape[];
+    const closestDroppableShape = getClosestDroppableShape(
+      this.editor,
+      droppableShapes,
+      unidirectionalCurrentShape
+    );
 
-    this.translateAllChildShapes(shape, current);
+    if (closestDroppableShape) {
+      const droppablesToUpdate = droppableShapes.map((s) => {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            active: s.id === closestDroppableShape.id,
+          },
+        };
+      });
+      this.editor.updateShapes(droppablesToUpdate);
+    }
 
-    // const parentBinding = this.editor.getBindingsToShape(shape, "layout")?.[0];
-    // if (!parentBinding) {
-    //   return shape;
-    // }
-
-    // const parentShape = this.editor.getShape(parentBinding.fromId) as BoxShape;
-    // const siblingBindings = this.editor.getBindingsFromShape(
-    //   parentShape,
-    //   "layout"
-    // );
-    // const siblingShapes = siblingBindings
-    //   .map((b) => this.editor.getShape(b.toId) as BoxShape)
-    //   .sort((a, b) => (a?.props.index < b!.props.index ? -1 : 1));
-    // const siblingShapesWithoutCurrent = siblingShapes.filter(
-    //   (s) => s.id !== shape.id
-    // );
-    // const siblingShapeIdsWithoutCurrent = siblingShapesWithoutCurrent.map(
-    //   (s) => s.id
-    // );
-
-    // const anchor = this.editor.getShapePageTransform(shape).applyToPoint({
-    //   x: shape.props.w / 2,
-    //   y: shape.props.h / 2,
-    // });
-
-    // const intersectingSibling = this.editor.getShapeAtPoint(anchor, {
-    //   filter: (s) => siblingShapeIdsWithoutCurrent.includes(s.id),
-    // }) as BoxShape | undefined;
-
-    // if (!intersectingSibling) {
-    //   return;
-    // }
-
-    // let newIndex: IndexKey;
-    // if (intersectingSibling.props.index > shape.props.index) {
-    //   const nextSiblingIndex = siblingShapesWithoutCurrent.findIndex(
-    //     (s) => s.id === intersectingSibling.id
-    //   );
-    //   console.log("nextSiblingIndex", nextSiblingIndex);
-    //   newIndex = getIndexBetween(
-    //     intersectingSibling.props.index,
-    //     siblingShapesWithoutCurrent[nextSiblingIndex + 1]?.props.index
-    //   );
-    // } else {
-    //   console.log("yo");
-    //   const prevSiblingIndex = siblingShapesWithoutCurrent.findIndex(
-    //     (s) => s.id === intersectingSibling.id
-    //   );
-    //   newIndex = getIndexBetween(
-    //     siblingShapesWithoutCurrent[prevSiblingIndex - 1]?.props.index,
-    //     shape.props.index
-    //   );
-    // }
-
-    // console.log("oldIndex", shape.props.index);
-    // console.log("newIndex", newIndex);
-
-    // this.editor.updateShapes([
-    //   {
-    //     ...shape,
-    //     props: {
-    //       ...shape.props,
-    //       index: newIndex,
-    //     },
-    //   },
-    //   // ...siblingShapesWithoutCurrent.map((s) => ({
-    //   //   ...s,
-    //   //   props: {
-    //   //     ...s.props,
-    //   //     placeholder: intersectingSibling.id === s.id ? false : true,
-    //   //   },
-    //   // })),
-    // ]);
-
-    // layout(this.editor, parentShape);
+    this.translateAllChildShapes(initialShape, unidirectionalCurrentShape);
+    return unidirectionalCurrentShape;
   }
 
-  override onTranslateEnd(shape: BoxShape) {
-    if (shape.id === "shape:root") {
-      return shape;
+  override onTranslateEnd(initialShape: BoxShape, currentShape: BoxShape) {
+    if (initialShape.id === "shape:root") {
+      return initialShape;
     }
 
-    const parentBinding = this.editor.getBindingsToShape(shape, "layout")?.[0];
-    if (!parentBinding) {
-      return shape;
+    const unidirectionalCurrentShape = {
+      ...currentShape,
+      y: initialShape.y,
+    };
+
+    const droppableShapes = this.editor
+      .getCurrentPageShapesSorted()
+      .filter((s) => s.type === "droppable") as DroppableShape[];
+    const closestDroppableShape = getClosestDroppableShape(
+      this.editor,
+      droppableShapes,
+      unidirectionalCurrentShape
+    );
+
+    if (closestDroppableShape) {
+      this.editor.updateShape({
+        ...currentShape,
+        props: {
+          ...currentShape.props,
+          index: closestDroppableShape.props.index,
+        },
+      });
     }
 
-    const parentShape = this.editor.getShape(parentBinding.fromId) as BoxShape;
-
-    layout(this.editor, parentShape);
+    deleteDroppableShapes(this.editor);
+    const parentShape = getParentShape(this.editor, currentShape, "layout");
+    layout(this.editor, parentShape as BoxShape);
   }
-
-  // override hideRotateHandle() {
-  // 	return true
-  // }
-  // override isAspectRatioLocked() {
-  // 	return true
-  // }
 
   override getGeometry(shape: BoxShape) {
     return new Rectangle2d({
-      // width: shape.props.calculatedWidth,
-      // height: shape.props.calculatedHeight,
       width: shape.props.w,
       height: shape.props.h,
       isFilled: true,
