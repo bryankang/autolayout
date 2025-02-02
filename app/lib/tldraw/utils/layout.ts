@@ -23,7 +23,6 @@ export const layout = (
     currentShape,
     parentShape
   );
-  console.log("calculatedSiblingShapes", calculatedSiblingShapes);
   const calculatedCurrentShape = calculatedSiblingShapes.find(
     (s) => s.id === currentShape.id
   )!;
@@ -65,7 +64,6 @@ export const calculateChildLayouts = (
     parentShape.props.pl -
     parentShape.props.pr -
     totalGapWidth;
-  console.log("parentShape", parentShape);
   const parentShapeHeight =
     parentShape.props.h - parentShape.props.pt - parentShape.props.pb;
 
@@ -110,13 +108,9 @@ export const calculateChildLayouts = (
       ? parentShapeHeight
       : siblingShape.props.h;
 
-    console.log("arentShape.props.pl", parentShape.props.pl);
-
     const { x, y } = editor
       .getShapePageTransform(parentShape)
       .applyToPoint(new Vec(calculatedX, parentShape.props.pt));
-
-    console.log("x", x, "y", y);
 
     calculatedSiblingShapes.push({
       ...siblingShape,
@@ -124,8 +118,8 @@ export const calculateChildLayouts = (
       y,
       props: {
         ...siblingShape.props,
-        w: calculatedWidth,
-        h: calculatedHeight,
+        w: Math.max(calculatedWidth, 1),
+        h: Math.max(calculatedHeight, 1),
       },
     });
   }

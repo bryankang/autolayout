@@ -16,8 +16,9 @@ import {
   getIndexAbove,
   getIndexBetween,
   Vec,
+  clamp,
 } from "tldraw";
-import { layout } from "../utils/layout";
+import { calculateChildLayouts, layout } from "../utils/layout";
 import {
   createDroppableShapes,
   deleteDroppableShapes,
@@ -25,6 +26,7 @@ import {
 } from "../utils/droppable";
 import { getParentShape } from "../utils/common";
 import { DroppableShape } from "./droppable";
+import { resizeShape } from "../utils/resize";
 
 export type BoxShapeProps = {
   index: IndexKey;
@@ -97,6 +99,12 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   // }
 
   override onResize(shape: BoxShape, info: TLResizeInfo<any>) {
+    const parentShape = getParentShape(this.editor, shape, "layout");
+    // console.log("onResize", shape, info);
+    const scaleMinX = 1 / info.initialShape.props.w;
+    const scaleMinY = 1 / info.initialShape.props.h;
+    if (info.scaleX < scaleMinX) info.scaleX = scaleMinX;
+    if (info.scaleY < scaleMinY) info.scaleY = scaleMinY;
     // resizeBox strips the props, so we need to add them back in
     const resizeResult = resizeBox(shape, info);
     const result = {
@@ -105,29 +113,65 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       props: {
         ...shape.props,
         ...resizeResult.props,
+        w: Math.max(resizeResult.props.w, 1),
+        h: Math.max(resizeResult.props.h, 1),
+        fullWidth: info.scaleX !== 1 ? false : shape.props.fullWidth,
+        fullHeight: info.scaleY !== 1 ? false : shape.props.fullHeight,
       },
     };
-    console.log("shape", shape);
-    if (shape.id === "shape:root") {
+    if (!parentShape) {
       this.resizeSymmetrically(result, info);
-    }
-
-    if (info.scaleX !== 1) result.props.fullWidth = false;
-    if (info.scaleY !== 1) result.props.fullHeight = false;
-
-    const parentBinding = this.editor.getBindingsToShape(result, "layout")?.[0];
-    const parentShape = parentBinding
-      ? this.editor.getShape(parentBinding.fromId)
-      : undefined;
-
-    this.editor.updateShape(result);
-    if (parentShape) {
-      // if not root, layout the siblings
-      layout(this.editor, parentShape as any);
-    } else {
-      // If root, we don't need to take into account siblings
       layout(this.editor, result);
+    } else {
+      const allCalculatedSiblingShapes = calculateChildLayouts(
+        this.editor,
+        result,
+        parentShape
+      );
+      const calculatedCurrentShape = allCalculatedSiblingShapes.find(
+        (s) => s.id === result.id
+      )!;
+      // console.log("calculatedCurrentShape", calculatedCurrentShape);
+      // if (
+      //   calculatedCurrentShape.props.w <= 1 ||
+      //   calculatedCurrentShape.props.h <= 1
+      // ) {
+      //   return result;
+      // }
+      result.x = calculatedCurrentShape.x;
+      result.y = calculatedCurrentShape.y;
+      // resizeShape(this.editor, result, info, { alignX: "left", alignY: "top" });
+      layout(this.editor, parentShape as any);
     }
+    // result.x = clamp(
+    //   result.x,
+    //   info.initialShape.x,
+    //   info.initialShape.x + info.initialShape.props.w - 1
+    // );
+    // result.y = clamp(
+    //   result.y,
+    //   info.initialShape.y,
+    //   info.initialShape.y + info.initialShape.props.h - 1
+    // );
+    // result.props.w = Math.max(result.props.w, 1);
+    // result.props.h = Math.max(result.props.h, 1);
+
+    // if (info.scaleX !== 1) result.props.fullWidth = false;
+    // if (info.scaleY !== 1) result.props.fullHeight = false;
+
+    // const parentBinding = this.editor.getBindingsToShape(result, "layout")?.[0];
+    // const parentShape = parentBinding
+    //   ? this.editor.getShape(parentBinding.fromId)
+    //   : undefined;
+
+    // this.editor.updateShape(result);
+    // if (parentShape) {
+    //   // if not root, layout the siblings
+    //   layout(this.editor, parentShape as any);
+    // } else {
+    //   // If root, we don't need to take into account siblings
+    //   layout(this.editor, result);
+    // }
 
     return result;
   }
