@@ -1,6 +1,6 @@
-import { Editor, TLShape, Vec } from "tldraw";
+import { createShapeId, Editor, TLShape, TLShapeId, Vec } from "tldraw";
 import { BoxShape } from "../shapes/box";
-import { getChildShapes, getSortedChildShapes } from "./common";
+import { getChildShapes, getParentShape, getSortedChildShapes } from "./common";
 
 // When the currentShape is root, it will already have the calculated values
 export const layout = (
@@ -11,8 +11,8 @@ export const layout = (
   const childShapes = getSortedChildShapes(editor, currentShape, "layout");
 
   if (!parentShape) {
+    editor.bringToFront(childShapes);
     childShapes.forEach((s) => {
-      editor.bringToFront([s]);
       layout(editor, s, currentShape);
     });
     return;
@@ -34,8 +34,8 @@ export const layout = (
       dragging: false,
     },
   });
+  editor.bringToFront(childShapes);
   childShapes.forEach((s) => {
-    editor.bringToFront([s]);
     layout(editor, s, calculatedCurrentShape);
   });
 };
@@ -125,4 +125,40 @@ export const calculateChildLayouts = (
   }
 
   return calculatedSiblingShapes;
+};
+
+export const cloneLayout = (
+  editor: Editor,
+  rootCloneShapeId: TLShapeId,
+  currentShape: BoxShape,
+  parentShape?: BoxShape,
+  parentCloneShapeId?: TLShapeId
+) => {
+  const cloneShapeId = !parentShape ? rootCloneShapeId : createShapeId();
+  editor.createShape({
+    ...currentShape,
+    id: cloneShapeId,
+  });
+
+  if (parentCloneShapeId) {
+    editor.createBinding({
+      type: "layout",
+      fromId: parentCloneShapeId,
+      toId: cloneShapeId,
+    });
+  }
+  const childShapes = getSortedChildShapes(editor, currentShape, "layout");
+  childShapes.forEach((s) => {
+    // editor.bringToFront([s]);
+    cloneLayout(editor, rootCloneShapeId, s, currentShape, cloneShapeId);
+  });
+};
+
+export const deleteLayout = (editor: Editor, currentShape: BoxShape) => {
+  const childShapes = getSortedChildShapes(editor, currentShape, "layout");
+  editor.deleteShape(currentShape.id);
+
+  childShapes.forEach((s) => {
+    deleteLayout(editor, s);
+  });
 };

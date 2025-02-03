@@ -17,8 +17,14 @@ import {
   getIndexBetween,
   Vec,
   clamp,
+  createShapeId,
 } from "tldraw";
-import { calculateChildLayouts, layout } from "../utils/layout";
+import {
+  calculateChildLayouts,
+  cloneLayout,
+  deleteLayout,
+  layout,
+} from "../utils/layout";
 import {
   createDroppableShapes,
   deleteDroppableShapes,
@@ -257,11 +263,14 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   }
 
   private bringAllToFront(shape: BoxShape) {
+    console.log("bringAllToFront", shape.id);
     this.editor.bringToFront([shape]);
     const childBindings = this.editor.getBindingsFromShape(shape, "layout");
     const childShapes = childBindings.map((b) => this.editor.getShape(b.toId));
     childShapes.forEach((s) => this.bringAllToFront(s as BoxShape));
   }
+
+  private rootCloneShape: BoxShape | undefined;
 
   override onTranslateStart(shape: BoxShape) {
     if (shape.id === "shape:root") {
@@ -271,6 +280,26 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     const parentShape = getParentShape(this.editor, shape, "layout");
     createDroppableShapes(this.editor, parentShape!);
 
+    const cloneScale = 0.8;
+    const cloneWidth = shape.props.w * cloneScale;
+    const cloneHeight = shape.props.h * cloneScale;
+    const cloneX = shape.x + (shape.props.w - cloneWidth) / 2;
+    const cloneY = shape.y + (shape.props.h - cloneHeight) / 2;
+
+    const rootCloneShapeId = createShapeId("clone");
+    cloneLayout(this.editor, rootCloneShapeId, shape);
+    this.rootCloneShape = this.editor.getShape(rootCloneShapeId) as BoxShape;
+    this.rootCloneShape.x = cloneX;
+    this.rootCloneShape.y = cloneY;
+    this.rootCloneShape.props.w = cloneWidth;
+    this.rootCloneShape.props.h = cloneHeight;
+    this.rootCloneShape.props.originalX = cloneX;
+    this.rootCloneShape.props.originalY = cloneY;
+    console.log("rootCloneShape", this.rootCloneShape);
+    this.editor.bringToFront([this.rootCloneShape]);
+    layout(this.editor, this.rootCloneShape);
+
+    // Hide all moving shapes
     const childShapes = this.getAllChildShapes(shape);
     const updatedChildShapes = childShapes.map((s) => ({
       ...s,
@@ -289,8 +318,35 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       },
     };
 
-    this.editor.updateShapes([updatedShape, ...updatedChildShapes]);
+    // Update all cloned shapes
+    const clonedChildShapes = this.getAllChildShapes(this.rootCloneShape);
+    const updatedRootChildShapes = clonedChildShapes.map((s) => ({
+      ...s,
+      props: {
+        ...s.props,
+        originalX: s.x,
+        originalY: s.y,
+        // dragging: true,
+      },
+    }));
+    const updatedCloneShape = {
+      ...this.rootCloneShape,
+      props: {
+        ...this.rootCloneShape.props,
+        originalX: this.rootCloneShape.x,
+        originalY: this.rootCloneShape.y,
+        // dragging: true,
+      },
+    };
+
+    this.editor.updateShapes([
+      updatedShape,
+      ...updatedChildShapes,
+      updatedCloneShape,
+      ...updatedRootChildShapes,
+    ]);
     this.bringAllToFront(shape);
+    this.bringAllToFront(this.rootCloneShape);
   }
 
   private translateAllChildShapes(
@@ -307,7 +363,28 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
         y: s.props.originalY + dy,
       };
     });
-    this.editor.updateShapes(updatedChildShapes);
+
+    const clonedChildShapes = this.getAllChildShapes(this.rootCloneShape!);
+    console.log("clonedChildShapes", clonedChildShapes);
+    const updatedClonedChildShapes = clonedChildShapes.map((s) => {
+      return {
+        ...s,
+        x: s.props.originalX + dx,
+        y: s.props.originalY + dy,
+      };
+    });
+    console.log("updatedRootCloneShape pre", this.rootCloneShape);
+    const updatedRootCloneShape = {
+      ...this.rootCloneShape!,
+      x: this.rootCloneShape!.props.originalX + dx,
+      y: this.rootCloneShape!.props.originalY + dy,
+    };
+    console.log("updatedRootCloneShape", updatedRootCloneShape);
+    this.editor.updateShapes([
+      ...updatedChildShapes,
+      updatedRootCloneShape,
+      ...updatedClonedChildShapes,
+    ]);
   }
 
   override onTranslate(initialShape: BoxShape, currentShape: BoxShape) {
@@ -349,6 +426,10 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   override onTranslateEnd(initialShape: BoxShape, currentShape: BoxShape) {
     if (initialShape.id === "shape:root") {
       return initialShape;
+    }
+
+    if (this.rootCloneShape) {
+      deleteLayout(this.editor, this.rootCloneShape);
     }
 
     const unidirectionalCurrentShape = {

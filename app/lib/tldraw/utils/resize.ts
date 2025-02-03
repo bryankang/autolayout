@@ -51,10 +51,7 @@ export const resizeShape = (
       }
       // }
     }
-  } else if (
-    (options.alignX === "right" || hasFullWidthSibling) &&
-    lastSiblingShape.id === shape.id
-  ) {
+  } else if (options.alignX === "right" && lastSiblingShape.id === shape.id) {
     if (
       info.handle === "right" ||
       info.handle === "top_right" ||
