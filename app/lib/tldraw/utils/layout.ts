@@ -55,16 +55,18 @@ export const calculateChildLayouts = (
     }
   );
 
-  const totalGapWidth =
+  const totalGapSize =
     Math.max(siblingShapes.length - 1, 0) * parentShape.props.gap;
 
-  const parentShapeWidth =
-    parentShape.props.w -
-    parentShape.props.pl -
-    parentShape.props.pr -
-    totalGapWidth;
-  const parentShapeHeight =
+  let parentShapeWidth =
+    parentShape.props.w - parentShape.props.pl - parentShape.props.pr;
+  let parentShapeHeight =
     parentShape.props.h - parentShape.props.pt - parentShape.props.pb;
+  if (parentShape.props.direction === "horizontal") {
+    parentShapeWidth -= totalGapSize;
+  } else {
+    parentShapeHeight -= totalGapSize;
+  }
 
   const absoluteWidthSiblingShapes = siblingShapes.filter((s) => {
     return !s.props.fullWidth;
@@ -72,44 +74,63 @@ export const calculateChildLayouts = (
   const totalAbsoluteWidth = absoluteWidthSiblingShapes.reduce((acc, s) => {
     return acc + s.props.w;
   }, 0);
-  const remainingAbsoluteWidth = parentShapeWidth - totalAbsoluteWidth;
+  const remainingAbsoluteWidth =
+    parentShape.props.direction === "horizontal"
+      ? parentShapeWidth - totalAbsoluteWidth
+      : parentShapeWidth;
   const relativeWidthSiblingShapes = siblingShapes.filter((s) => {
     return s.props.fullWidth;
   });
 
-  // const absoluteHeightSiblingShapes = sortedSiblingShapes.filter((s) => {
-  //   return !s.props.fullHeight;
-  // });
-  // const totalAbsoluteHeight = absoluteHeightSiblingShapes.reduce((acc, s) => {
-  //   return acc + s.props.h;
-  // }, 0);
-  // const remainingAbsoluteHeight = parentShape.props.h - totalAbsoluteHeight;
-  // const relativeHeightSiblingShapes = sortedSiblingShapes.filter((s) => {
-  //   return s.props.fullHeight;
-  // });
-  // const totalRelativeHeight = relativeHeightSiblingShapes.length;
+  const absoluteHeightSiblingShapes = siblingShapes.filter((s) => {
+    return !s.props.fullHeight;
+  });
+  const totalAbsoluteHeight = absoluteHeightSiblingShapes.reduce((acc, s) => {
+    return acc + s.props.h;
+  }, 0);
+  const remainingAbsoluteHeight =
+    parentShape.props.direction === "vertical"
+      ? parentShapeHeight - totalAbsoluteHeight
+      : parentShapeHeight;
+  const relativeHeightSiblingShapes = siblingShapes.filter((s) => {
+    return s.props.fullHeight;
+  });
 
   const calculatedSiblingShapes: BoxShape[] = [];
   for (let i = 0; i < siblingShapes.length; i++) {
     const siblingShape = siblingShapes[i];
+
     const calculatedX = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.w,
       parentShape.props.pl + i * parentShape.props.gap
     );
     const calculatedY = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.h,
-      0
+      parentShape.props.pt + i * parentShape.props.gap
     );
-    const calculatedWidth = siblingShape.props.fullWidth
+    const calculatedHorizontalWidth = siblingShape.props.fullWidth
       ? (1 / relativeWidthSiblingShapes.length) * remainingAbsoluteWidth
       : siblingShape.props.w;
-    const calculatedHeight = siblingShape.props.fullHeight
-      ? parentShapeHeight
+    const calculatedVerticalWidth = siblingShape.props.fullWidth
+      ? remainingAbsoluteWidth
+      : siblingShape.props.w;
+    const calculatedHorizontalHeight = siblingShape.props.fullHeight
+      ? remainingAbsoluteHeight
       : siblingShape.props.h;
+    const calculatedVerticalHeight = siblingShape.props.fullHeight
+      ? (1 / relativeHeightSiblingShapes.length) * remainingAbsoluteHeight
+      : siblingShape.props.h;
+
+    const horizontalPoint = new Vec(calculatedX, parentShape.props.pt);
+    const verticalPoint = new Vec(parentShape.props.pl, calculatedY);
 
     const { x, y } = editor
       .getShapePageTransform(parentShape)
-      .applyToPoint(new Vec(calculatedX, parentShape.props.pt));
+      .applyToPoint(
+        parentShape.props.direction === "horizontal"
+          ? horizontalPoint
+          : verticalPoint
+      );
 
     calculatedSiblingShapes.push({
       ...siblingShape,
@@ -117,8 +138,18 @@ export const calculateChildLayouts = (
       y,
       props: {
         ...siblingShape.props,
-        w: Math.max(calculatedWidth, 1),
-        h: Math.max(calculatedHeight, 1),
+        w: Math.max(
+          parentShape.props.direction === "horizontal"
+            ? calculatedHorizontalWidth
+            : calculatedVerticalWidth,
+          1
+        ),
+        h: Math.max(
+          parentShape.props.direction === "horizontal"
+            ? calculatedHorizontalHeight
+            : calculatedVerticalHeight,
+          1
+        ),
       },
     });
   }

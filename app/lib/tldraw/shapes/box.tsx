@@ -33,6 +33,8 @@ export type BoxShapeProps = {
   originalY: number; // used for translating children
   originalX: number; // used for translating children
   direction: string; // horizontal or vertical
+  alignX: string; // left, center, right
+  alignY: string; // top, center, bottom
   gap: number;
   pl: number;
   pr: number;
@@ -56,6 +58,8 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     originalX: T.number,
     originalY: T.number,
     direction: T.string,
+    alignX: T.string,
+    alignY: T.string,
     gap: T.number,
     pl: T.number,
     pr: T.number,
@@ -77,7 +81,9 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       fullHeight: true,
       originalX: 0,
       originalY: 0,
-      direction: "horizontal" as const,
+      direction: "horizontal",
+      alignX: "left",
+      alignY: "top",
       gap: 0,
       pl: 0,
       pr: 0,

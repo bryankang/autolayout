@@ -77,6 +77,7 @@ export const TldrawView = () => {
             h: 200,
             fullWidth: false,
             fullHeight: false,
+            // direction: "vertical",
             gap: 8,
             pl: 8,
             pr: 8,
@@ -116,7 +117,8 @@ export const TldrawView = () => {
             depth: 1,
             color: "salmon",
             w: 10,
-            fullWidth: false,
+            // fullWidth: false,
+            // fullHeight: false,
           },
         });
 
