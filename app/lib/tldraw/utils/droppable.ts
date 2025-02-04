@@ -17,8 +17,6 @@ export const createDroppableShapes = (
     return;
   }
 
-  console.log("childBoxShapes", childBoxShapes);
-
   const items: { index: IndexKey; x: number; y: number }[] = [];
   for (let i = 1; i < childBoxShapes.length; i++) {
     const prevShape = childBoxShapes[i - 1];
@@ -61,7 +59,7 @@ export const createDroppableShapes = (
       props: {
         index: item.index,
         w: 1,
-        h: parentShape.props.h,
+        h: parentShape.props.h - parentShape.props.pt - parentShape.props.pb,
         active: false,
       },
     };

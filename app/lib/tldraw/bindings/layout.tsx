@@ -1,18 +1,11 @@
-import { BindingUtil, IndexKey, TLBaseBinding } from "tldraw";
+import { BindingUtil, TLBaseBinding } from "tldraw";
 
-export type LayoutBinding = TLBaseBinding<
-  "layout",
-  {
-    index: IndexKey;
-  }
->;
+export type LayoutBinding = TLBaseBinding<"layout", {}>;
 
 export class LayoutBindingUtil extends BindingUtil<LayoutBinding> {
   static override type = "layout" as const;
 
   override getDefaultProps() {
-    return {
-      index: "a1" as IndexKey,
-    };
+    return {};
   }
 }

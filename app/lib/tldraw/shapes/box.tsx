@@ -1,38 +1,27 @@
 import {
   BaseBoxShapeUtil,
-  Geometry2d,
   HTMLContainer,
   IndexKey,
-  JsonObject,
-  pointInPolygon,
   RecordProps,
   Rectangle2d,
   resizeBox,
-  ShapeUtil,
   T,
   TLBaseShape,
   TLResizeInfo,
-  TLShapeId,
-  getIndexAbove,
-  getIndexBetween,
-  Vec,
-  clamp,
-  createShapeId,
 } from "tldraw";
+import { getParentShape } from "../utils/common";
+import {
+  createDroppableShapes,
+  deleteDroppableShapes,
+  getClosestDroppableShape,
+} from "../utils/droppable";
 import {
   calculateChildLayouts,
   cloneLayout,
   deleteLayout,
   layout,
 } from "../utils/layout";
-import {
-  createDroppableShapes,
-  deleteDroppableShapes,
-  getClosestDroppableShape,
-} from "../utils/droppable";
-import { getParentShape } from "../utils/common";
 import { DroppableShape } from "./droppable";
-import { resizeShape } from "../utils/resize";
 
 export type BoxShapeProps = {
   index: IndexKey;
@@ -129,6 +118,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       this.resizeSymmetrically(result, info);
       layout(this.editor, result);
     } else {
+      // Need to take into its own size depending on siblings
       const allCalculatedSiblingShapes = calculateChildLayouts(
         this.editor,
         result,
@@ -137,47 +127,10 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       const calculatedCurrentShape = allCalculatedSiblingShapes.find(
         (s) => s.id === result.id
       )!;
-      // console.log("calculatedCurrentShape", calculatedCurrentShape);
-      // if (
-      //   calculatedCurrentShape.props.w <= 1 ||
-      //   calculatedCurrentShape.props.h <= 1
-      // ) {
-      //   return result;
-      // }
       result.x = calculatedCurrentShape.x;
       result.y = calculatedCurrentShape.y;
-      // resizeShape(this.editor, result, info, { alignX: "left", alignY: "top" });
       layout(this.editor, parentShape as any);
     }
-    // result.x = clamp(
-    //   result.x,
-    //   info.initialShape.x,
-    //   info.initialShape.x + info.initialShape.props.w - 1
-    // );
-    // result.y = clamp(
-    //   result.y,
-    //   info.initialShape.y,
-    //   info.initialShape.y + info.initialShape.props.h - 1
-    // );
-    // result.props.w = Math.max(result.props.w, 1);
-    // result.props.h = Math.max(result.props.h, 1);
-
-    // if (info.scaleX !== 1) result.props.fullWidth = false;
-    // if (info.scaleY !== 1) result.props.fullHeight = false;
-
-    // const parentBinding = this.editor.getBindingsToShape(result, "layout")?.[0];
-    // const parentShape = parentBinding
-    //   ? this.editor.getShape(parentBinding.fromId)
-    //   : undefined;
-
-    // this.editor.updateShape(result);
-    // if (parentShape) {
-    //   // if not root, layout the siblings
-    //   layout(this.editor, parentShape as any);
-    // } else {
-    //   // If root, we don't need to take into account siblings
-    //   layout(this.editor, result);
-    // }
 
     return result;
   }
@@ -263,7 +216,6 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   }
 
   private bringAllToFront(shape: BoxShape) {
-    console.log("bringAllToFront", shape.id);
     this.editor.bringToFront([shape]);
     const childBindings = this.editor.getBindingsFromShape(shape, "layout");
     const childShapes = childBindings.map((b) => this.editor.getShape(b.toId));
@@ -280,26 +232,28 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     const parentShape = getParentShape(this.editor, shape, "layout");
     createDroppableShapes(this.editor, parentShape!);
 
-    const cloneScale = 0.8;
+    const cloneScale = 0.9;
     const cloneWidth = shape.props.w * cloneScale;
     const cloneHeight = shape.props.h * cloneScale;
     const cloneX = shape.x + (shape.props.w - cloneWidth) / 2;
     const cloneY = shape.y + (shape.props.h - cloneHeight) / 2;
 
-    const rootCloneShapeId = createShapeId("clone");
-    cloneLayout(this.editor, rootCloneShapeId, shape);
-    this.rootCloneShape = this.editor.getShape(rootCloneShapeId) as BoxShape;
-    this.rootCloneShape.x = cloneX;
-    this.rootCloneShape.y = cloneY;
-    this.rootCloneShape.props.w = cloneWidth;
-    this.rootCloneShape.props.h = cloneHeight;
-    this.rootCloneShape.props.originalX = cloneX;
-    this.rootCloneShape.props.originalY = cloneY;
-    console.log("rootCloneShape", this.rootCloneShape);
-    this.editor.bringToFront([this.rootCloneShape]);
+    this.rootCloneShape = cloneLayout(this.editor, {
+      ...shape,
+      x: cloneX,
+      y: cloneY,
+      props: {
+        ...shape.props,
+        w: cloneWidth,
+        h: cloneHeight,
+        originalX: cloneX,
+        originalY: cloneY,
+      },
+    });
     layout(this.editor, this.rootCloneShape);
 
-    // Hide all moving shapes
+    // Hide all moving shapes and set their originalX and originalY
+    // so that we can calculate the translation later
     const childShapes = this.getAllChildShapes(shape);
     const updatedChildShapes = childShapes.map((s) => ({
       ...s,
@@ -326,23 +280,12 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
         ...s.props,
         originalX: s.x,
         originalY: s.y,
-        // dragging: true,
       },
     }));
-    const updatedCloneShape = {
-      ...this.rootCloneShape,
-      props: {
-        ...this.rootCloneShape.props,
-        originalX: this.rootCloneShape.x,
-        originalY: this.rootCloneShape.y,
-        // dragging: true,
-      },
-    };
 
     this.editor.updateShapes([
       updatedShape,
       ...updatedChildShapes,
-      updatedCloneShape,
       ...updatedRootChildShapes,
     ]);
     this.bringAllToFront(shape);
@@ -356,35 +299,24 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     const dx = currentShape.x - initialShape.x;
     const dy = currentShape.y - initialShape.y;
     const allChildShapes = this.getAllChildShapes(initialShape);
-    const updatedChildShapes = allChildShapes.map((s) => {
-      return {
-        ...s,
-        x: s.props.originalX + dx,
-        y: s.props.originalY + dy,
-      };
-    });
-
     const clonedChildShapes = this.getAllChildShapes(this.rootCloneShape!);
-    console.log("clonedChildShapes", clonedChildShapes);
-    const updatedClonedChildShapes = clonedChildShapes.map((s) => {
-      return {
-        ...s,
-        x: s.props.originalX + dx,
-        y: s.props.originalY + dy,
-      };
-    });
-    console.log("updatedRootCloneShape pre", this.rootCloneShape);
+    const updatedChildShapes = [...allChildShapes, ...clonedChildShapes].map(
+      (s) => {
+        return {
+          ...s,
+          x: s.props.originalX + dx,
+          y: s.props.originalY + dy,
+        };
+      }
+    );
+
     const updatedRootCloneShape = {
       ...this.rootCloneShape!,
       x: this.rootCloneShape!.props.originalX + dx,
       y: this.rootCloneShape!.props.originalY + dy,
     };
-    console.log("updatedRootCloneShape", updatedRootCloneShape);
-    this.editor.updateShapes([
-      ...updatedChildShapes,
-      updatedRootCloneShape,
-      ...updatedClonedChildShapes,
-    ]);
+
+    this.editor.updateShapes([...updatedChildShapes, updatedRootCloneShape]);
   }
 
   override onTranslate(initialShape: BoxShape, currentShape: BoxShape) {
@@ -459,26 +391,6 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     deleteDroppableShapes(this.editor);
     const parentShape = getParentShape(this.editor, currentShape, "layout");
     layout(this.editor, parentShape as BoxShape);
-
-    // const childShapes = this.getAllChildShapes(currentShape);
-    // const updatedChildShapes = childShapes.map((s) => ({
-    //   ...s,
-    //   props: {
-    //     ...s.props,
-    //     originalX: s.x,
-    //     originalY: s.y,
-    //     dragging: false,
-    //   },
-    // }));
-    // const updatedShape = {
-    //   ...currentShape,
-    //   props: {
-    //     ...currentShape.props,
-    //     dragging: false,
-    //   },
-    // };
-
-    // this.editor.updateShapes([updatedShape, ...updatedChildShapes]);
   }
 
   override getGeometry(shape: BoxShape) {

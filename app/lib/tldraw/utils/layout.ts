@@ -1,6 +1,6 @@
-import { createShapeId, Editor, TLShape, TLShapeId, Vec } from "tldraw";
+import { createShapeId, Editor, TLShapeId, Vec } from "tldraw";
 import { BoxShape } from "../shapes/box";
-import { getChildShapes, getParentShape, getSortedChildShapes } from "./common";
+import { getSortedChildShapes } from "./common";
 
 // When the currentShape is root, it will already have the calculated values
 export const layout = (
@@ -8,10 +8,10 @@ export const layout = (
   currentShape: BoxShape,
   parentShape?: BoxShape
 ) => {
+  if (parentShape) editor.bringToFront([currentShape]);
   const childShapes = getSortedChildShapes(editor, currentShape, "layout");
 
   if (!parentShape) {
-    editor.bringToFront(childShapes);
     childShapes.forEach((s) => {
       layout(editor, s, currentShape);
     });
@@ -34,7 +34,6 @@ export const layout = (
       dragging: false,
     },
   });
-  editor.bringToFront(childShapes);
   childShapes.forEach((s) => {
     layout(editor, s, calculatedCurrentShape);
   });
@@ -127,30 +126,37 @@ export const calculateChildLayouts = (
   return calculatedSiblingShapes;
 };
 
-export const cloneLayout = (
+export const cloneLayout = (editor: Editor, currentShape: BoxShape) => {
+  const rootCloneShapeId = createShapeId("clone.root");
+  _cloneLayout(editor, rootCloneShapeId, currentShape);
+  const rootCloneShape = editor.getShape(rootCloneShapeId) as BoxShape;
+  return rootCloneShape;
+};
+
+const _cloneLayout = (
   editor: Editor,
   rootCloneShapeId: TLShapeId,
   currentShape: BoxShape,
-  parentShape?: BoxShape,
-  parentCloneShapeId?: TLShapeId
+  parentCloneShape?: BoxShape
 ) => {
-  const cloneShapeId = !parentShape ? rootCloneShapeId : createShapeId();
+  const cloneShapeId = !parentCloneShape ? rootCloneShapeId : createShapeId();
   editor.createShape({
     ...currentShape,
     id: cloneShapeId,
   });
+  const cloneShape = editor.getShape(cloneShapeId) as BoxShape;
+  editor.bringToFront([cloneShape]);
 
-  if (parentCloneShapeId) {
+  if (parentCloneShape) {
     editor.createBinding({
       type: "layout",
-      fromId: parentCloneShapeId,
-      toId: cloneShapeId,
+      fromId: parentCloneShape.id,
+      toId: cloneShape.id,
     });
   }
   const childShapes = getSortedChildShapes(editor, currentShape, "layout");
   childShapes.forEach((s) => {
-    // editor.bringToFront([s]);
-    cloneLayout(editor, rootCloneShapeId, s, currentShape, cloneShapeId);
+    _cloneLayout(editor, rootCloneShapeId, s, cloneShape);
   });
 };
 
