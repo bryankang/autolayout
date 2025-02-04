@@ -154,6 +154,106 @@ export const calculateChildLayouts = (
     });
   }
 
+  if (parentShape.props.alignX === "right") {
+    if (parentShape.props.direction === "horizontal") {
+      const totalSiblingWidth = calculatedSiblingShapes.reduce((acc, s, i) => {
+        if (i === 0) return acc + s.props.w;
+        return acc + s.props.w + parentShape.props.gap;
+      }, 0);
+
+      const dx =
+        parentShape.props.w -
+        parentShape.props.pl -
+        parentShape.props.pr -
+        totalSiblingWidth;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.x += dx;
+      }
+    } else {
+      const dx =
+        parentShape.props.w - parentShape.props.pl - parentShape.props.pr;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.x += dx - siblingShape.props.w;
+      }
+    }
+  }
+  if (parentShape.props.alignX === "center") {
+    if (parentShape.props.direction === "horizontal") {
+      const totalSiblingWidth = calculatedSiblingShapes.reduce((acc, s, i) => {
+        if (i === 0) return acc + s.props.w;
+        return acc + s.props.w + parentShape.props.gap;
+      }, 0);
+      const dx =
+        (parentShape.props.w -
+          parentShape.props.pl -
+          parentShape.props.pr -
+          totalSiblingWidth) /
+        2;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.x += dx;
+      }
+    } else {
+      const dx =
+        parentShape.props.w - parentShape.props.pl - parentShape.props.pr;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.x += (dx - siblingShape.props.w) / 2;
+      }
+    }
+  }
+  if (parentShape.props.alignY === "bottom") {
+    if (parentShape.props.direction === "vertical") {
+      const totalSiblingHeight = calculatedSiblingShapes.reduce((acc, s, i) => {
+        if (i === 0) return acc + s.props.h;
+        return acc + s.props.h + parentShape.props.gap;
+      }, 0);
+      const dy =
+        parentShape.props.h -
+        parentShape.props.pt -
+        parentShape.props.pb -
+        totalSiblingHeight;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.y += dy;
+      }
+    } else {
+      const dy =
+        parentShape.props.h - parentShape.props.pt - parentShape.props.pb;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.y += dy - siblingShape.props.h;
+      }
+    }
+  }
+  if (parentShape.props.alignY === "center") {
+    if (parentShape.props.direction === "vertical") {
+      const totalSiblingHeight = calculatedSiblingShapes.reduce((acc, s, i) => {
+        if (i === 0) return acc + s.props.h;
+        return acc + s.props.h + parentShape.props.gap;
+      }, 0);
+      const dy =
+        (parentShape.props.h -
+          parentShape.props.pt -
+          parentShape.props.pb -
+          totalSiblingHeight) /
+        2;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.y += dy;
+      }
+    } else {
+      const dy =
+        parentShape.props.h - parentShape.props.pt - parentShape.props.pb;
+      for (let i = 0; i < calculatedSiblingShapes.length; i++) {
+        const siblingShape = calculatedSiblingShapes[i];
+        siblingShape.y += (dy - siblingShape.props.h) / 2;
+      }
+    }
+  }
+
   return calculatedSiblingShapes;
 };
 
