@@ -14,6 +14,7 @@
     "@remix-run/server-runtime": "2.10.0",
     "@vercel/analytics": "^1.2.2",
     "@vercel/remix": "2.10.0",
+    "hotkeys-js": "^3.13.9",
     "isbot": "^4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

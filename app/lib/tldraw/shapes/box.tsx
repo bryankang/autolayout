@@ -25,6 +25,7 @@ import { DroppableShape } from "./droppable";
 
 export type BoxShapeProps = {
   index: IndexKey;
+  depth: number;
   w: number;
   h: number;
   fullWidth: boolean;
@@ -47,6 +48,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   static override type = "box" as const;
   static override props: RecordProps<BoxShape> = {
     index: T.any,
+    depth: T.number,
     w: T.number,
     h: T.number,
     fullWidth: T.boolean,
@@ -68,6 +70,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   override getDefaultProps() {
     return {
       index: "a0" as IndexKey,
+      depth: 0,
       w: 0,
       h: 0,
       fullWidth: true,

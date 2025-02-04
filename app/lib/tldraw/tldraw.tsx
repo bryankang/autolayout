@@ -1,9 +1,19 @@
-import { createShapeId, IndexKey, Tldraw, Vec } from "tldraw";
+import {
+  createShapeId,
+  getIndexBetween,
+  IndexKey,
+  Tldraw,
+  TLUiActionItem,
+  TLUiActionsContextType,
+  Vec,
+} from "tldraw";
 import { layout } from "./utils/layout";
 import { BoxShape, BoxShapeUtil } from "./shapes/box";
 import { LayoutBindingUtil } from "./bindings/layout";
 import "tldraw/tldraw.css";
 import { DroppableShapeUtil } from "./shapes/droppable";
+import { getSortedChildShapes } from "./utils/common";
+import { CustomUi } from "./custom-ui";
 
 export const TldrawView = () => {
   return (
@@ -12,6 +22,19 @@ export const TldrawView = () => {
       shapeUtils={[BoxShapeUtil, DroppableShapeUtil]}
       bindingUtils={[LayoutBindingUtil]}
       hideUi
+      overrides={{
+        actions: (editor, actions, helpers) => {
+          // [4]
+          const newActions: TLUiActionsContextType = {
+            ...actions,
+            // delete: {},
+          };
+
+          delete newActions.delete;
+
+          return newActions;
+        },
+      }}
       onMount={(editor) => {
         if (editor.getShape("shape:root" as any)) {
           return;
@@ -48,6 +71,7 @@ export const TldrawView = () => {
           y: -200 / 2,
           props: {
             index: "a0" as IndexKey,
+            depth: 0,
             color: "lightgray",
             w: 200,
             h: 200,
@@ -66,7 +90,7 @@ export const TldrawView = () => {
           type: "box",
           x: 0,
           y: 0,
-          props: { index: "a2" },
+          props: { index: "a2", depth: 1 },
         });
 
         editor.createShape({
@@ -76,6 +100,7 @@ export const TldrawView = () => {
           y: 0,
           props: {
             index: "a3",
+            depth: 1,
             color: "lightblue",
             gap: 12,
           },
@@ -88,6 +113,7 @@ export const TldrawView = () => {
           y: 0,
           props: {
             index: "a4",
+            depth: 1,
             color: "salmon",
             w: 10,
             fullWidth: false,
@@ -101,6 +127,7 @@ export const TldrawView = () => {
           y: 0,
           props: {
             index: "a5",
+            depth: 2,
             color: "teal",
           },
         });
@@ -112,6 +139,7 @@ export const TldrawView = () => {
           y: 0,
           props: {
             index: "a6",
+            depth: 2,
             color: "purple",
           },
         });
@@ -153,6 +181,8 @@ export const TldrawView = () => {
 
         layout(editor, rootShape);
 
+        editor.select(rootShape);
+
         setTimeout(() => {
           const secondShape = editor.getShape(firstId) as BoxShape;
 
@@ -165,6 +195,8 @@ export const TldrawView = () => {
 
         console.log("store", editor.getSnapshot().document.store);
       }}
-    />
+    >
+      <CustomUi />
+    </Tldraw>
   );
 };
