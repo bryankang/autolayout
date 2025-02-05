@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { createShapeId, getIndexBetween, IndexKey, useEditor } from "tldraw";
-import { layout } from "./utils/layout";
-import { BoxShape } from "./shapes/box";
-import { getParentShape, getSortedChildShapes } from "./utils/common";
 import hotkeys from "hotkeys-js";
+import { BoxShape } from "~/lib/tldraw-view/shapes/box";
+import {
+  getParentShape,
+  getSortedChildShapes,
+} from "~/lib/tldraw-view/utils/common";
+import { layout } from "~/lib/tldraw-view/utils/layout";
 
 function getRandomColor() {
   var letters = "0123456789ABCDEF";
@@ -14,7 +17,7 @@ function getRandomColor() {
   return color;
 }
 
-export const CustomUi = () => {
+export const Shortcuts = () => {
   const editor = useEditor();
 
   useEffect(() => {
@@ -25,15 +28,18 @@ export const CustomUi = () => {
           .getSelectedShapeIds()
           .filter((id) => id !== "shape:root");
         const selectedShapes = selectedShapeIds.map(
-          (id) => editor.getShape(id) as BoxShape
+          (id) => editor.getShape(id) as BoxShape,
         );
-        const oldestShape = selectedShapes.reduce((acc, s) => {
-          if (!acc) return s;
-          if (s.props.depth < acc.props.depth) {
-            return s;
-          }
-          return acc;
-        }, undefined as BoxShape | undefined);
+        const oldestShape = selectedShapes.reduce(
+          (acc, s) => {
+            if (!acc) return s;
+            if (s.props.depth < acc.props.depth) {
+              return s;
+            }
+            return acc;
+          },
+          undefined as BoxShape | undefined,
+        );
         const parentOfOldestShape =
           oldestShape && getParentShape(editor, oldestShape, "layout");
         editor.deleteShapes(selectedShapeIds);
@@ -48,7 +54,7 @@ export const CustomUi = () => {
         const childShapes = getSortedChildShapes(
           editor,
           selectedShape,
-          "layout"
+          "layout",
         );
         if (childShapes.length === 0) {
           index = "a1" as IndexKey;
@@ -94,15 +100,15 @@ export const CustomUi = () => {
         const parentShape = getParentShape(
           editor,
           selectedShape,
-          "layout"
+          "layout",
         ) as BoxShape;
         const siblingShapes = getSortedChildShapes(
           editor,
           parentShape,
-          "layout"
+          "layout",
         );
         const selectedShapeOrderIndex = siblingShapes.findIndex(
-          (s) => s.id === selectedShape.id
+          (s) => s.id === selectedShape.id,
         );
         const newShapeId = createShapeId();
         editor.createShape<BoxShape>({
@@ -112,7 +118,7 @@ export const CustomUi = () => {
             ...selectedShape.props,
             index: getIndexBetween(
               selectedShape.props.index,
-              siblingShapes[selectedShapeOrderIndex + 1]?.props.index
+              siblingShapes[selectedShapeOrderIndex + 1]?.props.index,
             ),
           },
         });
@@ -136,7 +142,7 @@ export const CustomUi = () => {
       const childShapes = getSortedChildShapes(
         editor,
         selectedShapes[0],
-        "layout"
+        "layout",
       );
       if (childShapes.length === 0) return;
       editor.select(...childShapes);
@@ -150,7 +156,7 @@ export const CustomUi = () => {
       if (selectedShapes.find((s) => s.id === "shape:root")) return;
       if (
         !selectedShapes.every(
-          (s) => s.props.depth === selectedShapes[0].props.depth
+          (s) => s.props.depth === selectedShapes[0].props.depth,
         )
       )
         return;
@@ -158,7 +164,7 @@ export const CustomUi = () => {
       const parentShape = getParentShape(
         editor,
         selectedShapes[0],
-        "layout"
+        "layout",
       ) as BoxShape;
       editor.select(parentShape);
     });
@@ -174,12 +180,12 @@ export const CustomUi = () => {
       const parentShape = getParentShape(
         editor,
         selectedShape,
-        "layout"
+        "layout",
       ) as BoxShape;
       if (!parentShape) return;
       const siblingShapes = getSortedChildShapes(editor, parentShape, "layout");
       const selectedShapeOrderIndex = siblingShapes.findIndex(
-        (s) => s.id === selectedShape.id
+        (s) => s.id === selectedShape.id,
       );
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         if (selectedShapeOrderIndex === 0) return;
@@ -192,7 +198,7 @@ export const CustomUi = () => {
             ...selectedShape.props,
             index: getIndexBetween(
               siblingShapes[selectedShapeOrderIndex - 1]?.props.index,
-              siblingShapes[selectedShapeOrderIndex - 2]?.props.index
+              siblingShapes[selectedShapeOrderIndex - 2]?.props.index,
             ),
           },
         });
@@ -210,7 +216,7 @@ export const CustomUi = () => {
             ...selectedShape.props,
             index: getIndexBetween(
               siblingShapes[selectedShapeOrderIndex + 1]?.props.index,
-              siblingShapes[selectedShapeOrderIndex + 2]?.props.index
+              siblingShapes[selectedShapeOrderIndex + 2]?.props.index,
             ),
           },
         });
@@ -230,5 +236,5 @@ export const CustomUi = () => {
     };
   }, []);
 
-  return <></>;
+  return <div></div>;
 };

@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@vercel/remix";
-import { TldrawView } from "~/lib/tldraw/tldraw";
+import { TldrawView } from "~/lib/tldraw-view/TldrawView";
 
 export const meta: MetaFunction = () => {
   return [
