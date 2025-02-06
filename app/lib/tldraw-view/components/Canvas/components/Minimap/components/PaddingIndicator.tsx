@@ -10,7 +10,7 @@ export const PaddingIndicator: FC<PaddingIndicatorProps> = ({ active }) => {
     <div
       className={cn(
         "h-1 w-1 rounded-full bg-gray-200",
-        active && "bg-gray-300",
+        active && "bg-blue-300",
       )}
     />
   );

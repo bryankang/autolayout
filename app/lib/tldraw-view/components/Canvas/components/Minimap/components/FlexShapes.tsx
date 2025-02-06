@@ -25,19 +25,19 @@ export const FlexShapes: FC<FlexShapesProps> = ({
     >
       <div
         className={cn(
-          "rounded-xs bg-gray-400",
+          "rounded-xs bg-blue-400",
           direction === "horizontal" ? "h-6 w-[10px]" : "h-[10px] w-6",
         )}
       />
       <div
         className={cn(
-          "rounded-xs bg-gray-400",
+          "rounded-xs bg-blue-400",
           direction === "horizontal" ? "h-8 w-[10px]" : "h-[10px] w-8",
         )}
       />
       <div
         className={cn(
-          "rounded-xs bg-gray-400",
+          "rounded-xs bg-blue-400",
           direction === "horizontal" ? "h-4 w-[10px]" : "h-[10px] w-4",
         )}
       />
@@ -63,7 +63,7 @@ const containerVariants = cva("flex flex-1", {
     },
     hasGap: {
       true: "gap-[6px]",
-      false: "gap-[3px]",
+      false: "gap-[2px]",
     },
   },
   defaultVariants: {},
@@ -75,41 +75,3 @@ interface ContainerProps extends VariantProps<typeof containerVariants> {
 
 const container = (variants: ContainerProps) =>
   twMerge(containerVariants(variants));
-
-const shapeVariants = cva("bg-gray-400 rounded-xs", {
-  variants: {
-    direction: {
-      horizontal: "basis-3",
-      vertical: "basis-3",
-    },
-    alignX: {
-      left: "",
-      center: "",
-      right: "",
-    },
-    alignY: {
-      top: "",
-      center: "",
-      bottom: "",
-    },
-    hasGap: {
-      true: "",
-    },
-  },
-  // compoundVariants: [
-  //   {
-  //     direction: "horizontal",
-  //     alignX: "center",
-  //     alignY: "center",
-  //     hasGap: true,
-  //     className: "gap-2",
-  //   },
-  // ],
-  defaultVariants: {},
-});
-
-interface ShapeProps extends VariantProps<typeof shapeVariants> {
-  children: ReactNode;
-}
-
-const shape = (variants: ShapeProps) => twMerge(shapeVariants(variants));

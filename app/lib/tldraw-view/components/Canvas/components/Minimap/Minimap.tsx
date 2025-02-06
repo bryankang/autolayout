@@ -23,7 +23,7 @@ export const Minimap: FC<MinimapProps> = () => {
   return (
     <div
       className={cn(
-        "absolute top-6 right-6 flex h-[120px] w-[120px] flex-col rounded-md bg-gray-100",
+        "absolute top-6 right-6 flex h-[120px] w-[120px] flex-col rounded-md bg-white",
         // !selectedShape.props.pt && "pt-2",
         // !selectedShape.props.pb && "pb-2",
         // !selectedShape.props.pl && "pl-2",
@@ -60,7 +60,7 @@ export const Minimap: FC<MinimapProps> = () => {
         >
           <div
             className={cn(
-              "inline-flex h-fit w-fit rounded-sm bg-gray-200 p-2",
+              "inline-flex h-fit w-fit rounded-sm bg-blue-100 p-2",
               selectedShape.props.fullWidth && "w-full",
               selectedShape.props.fullHeight && "h-full",
             )}
@@ -93,29 +93,3 @@ export const Minimap: FC<MinimapProps> = () => {
     </div>
   );
 };
-
-const container = cva(
-  "absolute top-6 right-6 h-[120px] w-[120px] rounded-md bg-gray-100",
-  {
-    variants: {
-      pt: {
-        true: "pt-2",
-      },
-      pb: {
-        true: "pb-2",
-      },
-      pl: {
-        true: "pl-2",
-      },
-      pr: {
-        true: "pr-2",
-      },
-    },
-    defaultVariants: {
-      pt: false,
-      pb: false,
-      pl: false,
-      pr: false,
-    },
-  },
-);
