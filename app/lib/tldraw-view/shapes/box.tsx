@@ -2,12 +2,14 @@ import {
   BaseBoxShapeUtil,
   HTMLContainer,
   IndexKey,
+  JsonObject,
   RecordProps,
   Rectangle2d,
   resizeBox,
   T,
   TLBaseShape,
   TLResizeInfo,
+  TLShapeId,
 } from "tldraw";
 import { getParentShape } from "../utils/common";
 import {
@@ -98,6 +100,10 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     return true;
   }
 
+  // override onClick(shape: BoxShape) {
+  //   super.onClick?.(shape);
+  // }
+
   // override canResize() {
   //   return true;
   // }
@@ -131,10 +137,10 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       const allCalculatedSiblingShapes = calculateChildLayouts(
         this.editor,
         result,
-        parentShape
+        parentShape,
       );
       const calculatedCurrentShape = allCalculatedSiblingShapes.find(
-        (s) => s.id === result.id
+        (s) => s.id === result.id,
       )!;
       result.x = calculatedCurrentShape.x;
       result.y = calculatedCurrentShape.y;
@@ -165,7 +171,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     ) {
       const addWidth = info.scaleX > 1;
       const widthDelta = Math.abs(
-        info.initialBounds.width * info.scaleX - info.initialBounds.width
+        info.initialBounds.width * info.scaleX - info.initialBounds.width,
       );
       if (addWidth) {
         result.props.w += widthDelta;
@@ -195,7 +201,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     ) {
       const addHeight = info.scaleY > 1;
       const heightDelta = Math.abs(
-        info.initialBounds.height * info.scaleY - info.initialBounds.height
+        info.initialBounds.height * info.scaleY - info.initialBounds.height,
       );
       if (addHeight) {
         result.props.h += heightDelta;
@@ -303,7 +309,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
 
   private translateAllChildShapes(
     initialShape: BoxShape,
-    currentShape: BoxShape
+    currentShape: BoxShape,
   ) {
     const dx = currentShape.x - initialShape.x;
     const dy = currentShape.y - initialShape.y;
@@ -316,7 +322,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
           x: s.props.originalX + dx,
           y: s.props.originalY + dy,
         };
-      }
+      },
     );
 
     const updatedRootCloneShape = {
@@ -344,7 +350,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     const closestDroppableShape = getClosestDroppableShape(
       this.editor,
       droppableShapes,
-      unidirectionalCurrentShape
+      unidirectionalCurrentShape,
     );
 
     if (closestDroppableShape) {
@@ -384,7 +390,7 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
     const closestDroppableShape = getClosestDroppableShape(
       this.editor,
       droppableShapes,
-      unidirectionalCurrentShape
+      unidirectionalCurrentShape,
     );
 
     if (closestDroppableShape) {

@@ -224,6 +224,21 @@ export const Shortcuts = () => {
       }
     });
 
+    hotkeys("h, v", (e) => {
+      const selectedShapes = editor.getSelectedShapes() as BoxShape[];
+      if (selectedShapes.length === 0 || selectedShapes.length > 1) return;
+      const selectedShape = selectedShapes[0];
+      editor.updateShape<BoxShape>({
+        ...selectedShape,
+        props: {
+          ...selectedShape.props,
+          direction: e.key === "h" ? "horizontal" : "vertical",
+        },
+      });
+      const rootShape = editor.getShape("shape:root" as any) as BoxShape;
+      layout(editor, rootShape);
+    });
+
     window.addEventListener("keydown", handleKeyDown);
     // window.addEventListener("keyup", handleKeyUp);
     return () => {
@@ -231,6 +246,7 @@ export const Shortcuts = () => {
       hotkeys.unbind("enter");
       hotkeys.unbind("shift+enter");
       hotkeys.unbind("left,up,right,down");
+      hotkeys.unbind("h, v");
 
       // window.removeEventListener("keyup", handleKeyUp);
     };

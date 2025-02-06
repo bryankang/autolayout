@@ -26,19 +26,19 @@ export const FlexShapes: FC<FlexShapesProps> = ({
       <div
         className={cn(
           "rounded-xs bg-gray-400",
-          direction === "horizontal" ? "h-7 w-3" : "h-[10px] w-7",
+          direction === "horizontal" ? "h-6 w-[10px]" : "h-[10px] w-6",
         )}
       />
       <div
         className={cn(
           "rounded-xs bg-gray-400",
-          direction === "horizontal" ? "h-9 w-3" : "h-[10px] w-9",
+          direction === "horizontal" ? "h-8 w-[10px]" : "h-[10px] w-8",
         )}
       />
       <div
         className={cn(
           "rounded-xs bg-gray-400",
-          direction === "horizontal" ? "h-5 w-3" : "h-[10px] w-5",
+          direction === "horizontal" ? "h-4 w-[10px]" : "h-[10px] w-4",
         )}
       />
     </div>
@@ -62,8 +62,8 @@ const containerVariants = cva("flex flex-1", {
       bottom: "justify-end",
     },
     hasGap: {
-      true: "gap-2",
-      false: "gap-1",
+      true: "gap-[6px]",
+      false: "gap-[3px]",
     },
   },
   defaultVariants: {},

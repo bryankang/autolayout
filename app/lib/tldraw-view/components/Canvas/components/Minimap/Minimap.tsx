@@ -16,6 +16,8 @@ export const Minimap: FC<MinimapProps> = () => {
 
   const selectedShape = selectedShapes[0];
 
+  console.log("selectedShape", selectedShape);
+
   const getPaddings = () => {};
 
   return (
@@ -45,13 +47,31 @@ export const Minimap: FC<MinimapProps> = () => {
         >
           <PaddingIndicator active={!!selectedShape.props.pl} />
         </div>
-        <div className="flex flex-1 flex-col">
-          <FlexShapes
-            direction={selectedShape.props.direction}
-            alignX={selectedShape.props.alignX}
-            alignY={selectedShape.props.alignY}
-            gap={selectedShape.props.gap}
-          />
+        <div
+          className={cn(
+            "flex flex-1",
+            selectedShape.props.alignX === "left" && "items-start",
+            selectedShape.props.alignX === "center" && "items-center",
+            selectedShape.props.alignX === "right" && "items-end",
+            selectedShape.props.alignY === "top" && "justify-start",
+            selectedShape.props.alignY === "center" && "justify-center",
+            selectedShape.props.alignY === "bottom" && "justify-end",
+          )}
+        >
+          <div
+            className={cn(
+              "inline-flex h-fit w-fit rounded-sm bg-gray-200 p-2",
+              selectedShape.props.fullWidth && "w-full",
+              selectedShape.props.fullHeight && "h-full",
+            )}
+          >
+            <FlexShapes
+              direction={selectedShape.props.direction}
+              alignX={selectedShape.props.alignX}
+              alignY={selectedShape.props.alignY}
+              gap={selectedShape.props.gap}
+            />
+          </div>
         </div>
         <div
           className={cn(

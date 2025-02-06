@@ -85,9 +85,9 @@ export const Canvas: FC = () => {
                 fullHeight: false,
                 // direction: "vertical",
                 // alignX: "right",
-                alignX: "left",
-                alignY: "top",
-                gap: 8,
+                alignX: "center",
+                alignY: "center",
+                // gap: 8,
                 pl: 0,
                 pr: 8,
                 pt: 8,
@@ -95,12 +95,24 @@ export const Canvas: FC = () => {
               },
             });
 
-            editor.createShape({
+            editor.createShape<BoxShape>({
               id: firstId,
               type: "box",
               x: 0,
               y: 0,
-              props: { index: "a2", depth: 1 },
+              props: {
+                index: "a2",
+                depth: 1,
+                fullWidth: false,
+                w: 20,
+                // alignX: "center",
+                // alignY: "center",
+                gap: 8,
+                pl: 0,
+                pr: 8,
+                pt: 8,
+                pb: 8,
+              },
             });
 
             editor.createShape({
