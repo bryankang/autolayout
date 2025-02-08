@@ -223,7 +223,7 @@ export const Canvas: FC = () => {
           <Minimap />
         </Tldraw>
       </div>
-      <div className="relative h-full w-[280px]">
+      <div className="relative h-full w-[240px]">
         <SelectionPanel />
       </div>
     </div>
