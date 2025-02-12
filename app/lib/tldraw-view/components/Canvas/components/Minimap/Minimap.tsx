@@ -11,7 +11,9 @@ export const Minimap: FC<MinimapProps> = () => {
   const { selectedShapes } = useTldrawContext();
 
   if (!selectedShapes.length || selectedShapes.length > 1) {
-    return null;
+    return (
+      <div className={cn("bg-gray-2 flex h-[160px] flex-col rounded-sm")} />
+    );
   }
 
   const selectedShape = selectedShapes[0];
@@ -21,19 +23,11 @@ export const Minimap: FC<MinimapProps> = () => {
   const getPaddings = () => {};
 
   return (
-    <div
-      className={cn(
-        "absolute top-6 right-6 flex h-[120px] w-[120px] flex-col rounded-md bg-white",
-        // !selectedShape.props.pt && "pt-2",
-        // !selectedShape.props.pb && "pb-2",
-        // !selectedShape.props.pl && "pl-2",
-        // !selectedShape.props.pr && "pr-2",
-      )}
-    >
+    <div className={cn("bg-gray-2 flex h-[160px] flex-col rounded-sm")}>
       <div
         className={cn(
-          "flex h-5 items-center justify-center overflow-hidden",
-          selectedShape.props.pt && "h-5",
+          "flex h-6 items-center justify-center overflow-hidden",
+          selectedShape.props.pt && "h-6",
         )}
       >
         <PaddingIndicator active={!!selectedShape.props.pt} />
@@ -41,8 +35,8 @@ export const Minimap: FC<MinimapProps> = () => {
       <div className="flex flex-1">
         <div
           className={cn(
-            "flex h-full w-5 items-center justify-center overflow-hidden",
-            selectedShape.props.pl && "w-5",
+            "flex h-full w-6 items-center justify-center overflow-hidden",
+            selectedShape.props.pl && "w-6",
           )}
         >
           <PaddingIndicator active={!!selectedShape.props.pl} />
@@ -60,7 +54,7 @@ export const Minimap: FC<MinimapProps> = () => {
         >
           <div
             className={cn(
-              "inline-flex h-fit w-fit rounded-sm bg-blue-100 p-2",
+              "bg-blue-4 inline-flex h-fit w-fit rounded-sm p-3",
               selectedShape.props.fullWidth && "w-full",
               selectedShape.props.fullHeight && "h-full",
             )}
@@ -75,8 +69,8 @@ export const Minimap: FC<MinimapProps> = () => {
         </div>
         <div
           className={cn(
-            "flex h-full w-5 items-center justify-center overflow-hidden",
-            selectedShape.props.pr && "w-5",
+            "flex h-full w-6 items-center justify-center overflow-hidden",
+            selectedShape.props.pr && "w-6",
           )}
         >
           <PaddingIndicator active={!!selectedShape.props.pr} />
@@ -84,8 +78,8 @@ export const Minimap: FC<MinimapProps> = () => {
       </div>
       <div
         className={cn(
-          "flex h-5 items-center justify-center overflow-hidden",
-          selectedShape.props.pb && "h-5",
+          "flex h-6 items-center justify-center overflow-hidden",
+          selectedShape.props.pb && "h-6",
         )}
       >
         <PaddingIndicator active={!!selectedShape.props.pb} />

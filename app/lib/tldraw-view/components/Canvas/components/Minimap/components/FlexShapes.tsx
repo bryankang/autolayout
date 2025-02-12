@@ -25,19 +25,19 @@ export const FlexShapes: FC<FlexShapesProps> = ({
     >
       <div
         className={cn(
-          "rounded-xs bg-blue-400",
+          "bg-blue-9 rounded-xs",
           direction === "horizontal" ? "h-6 w-[10px]" : "h-[10px] w-6",
         )}
       />
       <div
         className={cn(
-          "rounded-xs bg-blue-400",
+          "bg-blue-9 rounded-xs",
           direction === "horizontal" ? "h-8 w-[10px]" : "h-[10px] w-8",
         )}
       />
       <div
         className={cn(
-          "rounded-xs bg-blue-400",
+          "bg-blue-9 rounded-xs",
           direction === "horizontal" ? "h-4 w-[10px]" : "h-[10px] w-4",
         )}
       />

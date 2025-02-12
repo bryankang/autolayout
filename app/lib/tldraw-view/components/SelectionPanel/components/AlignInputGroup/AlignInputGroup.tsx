@@ -1,6 +1,6 @@
 import { FC } from "react";
-import { cn } from "~/lib/utils";
 import { AlignInput } from "./components/AlignInput";
+import { cn } from "~/styles/utils";
 
 export type AlignInputGroupProps = {
   value?: { alignX: string; alignY: string };
@@ -16,7 +16,7 @@ export const AlignInputGroup: FC<AlignInputGroupProps> = ({
   return (
     <div
       className={cn([
-        "border-accent grid grid-flow-col grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 rounded-xs border bg-slate-50 p-1",
+        "bg-gray-2 grid h-[56px] grid-flow-col grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 rounded-xs p-1",
         className,
       ])}
     >

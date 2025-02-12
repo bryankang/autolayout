@@ -8,10 +8,7 @@ export type PaddingIndicatorProps = {
 export const PaddingIndicator: FC<PaddingIndicatorProps> = ({ active }) => {
   return (
     <div
-      className={cn(
-        "h-1 w-1 rounded-full bg-gray-200",
-        active && "bg-blue-300",
-      )}
+      className={cn("bg-gray-5 h-1 w-1 rounded-full", active && "bg-blue-7")}
     />
   );
 };

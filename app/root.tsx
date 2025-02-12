@@ -6,7 +6,9 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import { Analytics } from "@vercel/analytics/react";
+import "./lib/radix-themes/styles/index.css";
 import "./styles/main.css";
+import { Theme } from "./lib/radix-themes";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,5 +30,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <Theme accentColor="blue">
+      <Outlet />
+    </Theme>
+  );
 }
