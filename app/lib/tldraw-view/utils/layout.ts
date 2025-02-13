@@ -6,7 +6,7 @@ import { getSortedChildShapes } from "./common";
 export const layout = (
   editor: Editor,
   currentShape: BoxShape,
-  parentShape?: BoxShape
+  parentShape?: BoxShape,
 ) => {
   if (parentShape) editor.bringToFront([currentShape]);
   const childShapes = getSortedChildShapes(editor, currentShape, "layout");
@@ -21,10 +21,10 @@ export const layout = (
   const calculatedSiblingShapes = calculateChildLayouts(
     editor,
     currentShape,
-    parentShape
+    parentShape,
   );
   const calculatedCurrentShape = calculatedSiblingShapes.find(
-    (s) => s.id === currentShape.id
+    (s) => s.id === currentShape.id,
   )!;
 
   editor.updateShape({
@@ -42,7 +42,7 @@ export const layout = (
 export const calculateChildLayouts = (
   editor: Editor,
   currentShape: BoxShape,
-  parentShape: BoxShape
+  parentShape: BoxShape,
 ) => {
   // Siblings
   // Replace the siblings with the currentShape bc it may have been manually updated
@@ -52,7 +52,7 @@ export const calculateChildLayouts = (
         return currentShape;
       }
       return s;
-    }
+    },
   );
 
   const totalGapSize =
@@ -102,11 +102,11 @@ export const calculateChildLayouts = (
 
     const calculatedX = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.w,
-      parentShape.props.pl + i * parentShape.props.gap
+      parentShape.props.pl + i * parentShape.props.gap,
     );
     const calculatedY = calculatedSiblingShapes.reduce(
       (acc, s) => acc + s.props.h,
-      parentShape.props.pt + i * parentShape.props.gap
+      parentShape.props.pt + i * parentShape.props.gap,
     );
     const calculatedHorizontalWidth = siblingShape.props.fullWidth
       ? (1 / relativeWidthSiblingShapes.length) * remainingAbsoluteWidth
@@ -129,7 +129,7 @@ export const calculateChildLayouts = (
       .applyToPoint(
         parentShape.props.direction === "horizontal"
           ? horizontalPoint
-          : verticalPoint
+          : verticalPoint,
       );
 
     calculatedSiblingShapes.push({
@@ -142,13 +142,13 @@ export const calculateChildLayouts = (
           parentShape.props.direction === "horizontal"
             ? calculatedHorizontalWidth
             : calculatedVerticalWidth,
-          1
+          1,
         ),
         h: Math.max(
           parentShape.props.direction === "horizontal"
             ? calculatedHorizontalHeight
             : calculatedVerticalHeight,
-          1
+          1,
         ),
       },
     });
@@ -268,7 +268,7 @@ const _cloneLayout = (
   editor: Editor,
   rootCloneShapeId: TLShapeId,
   currentShape: BoxShape,
-  parentCloneShape?: BoxShape
+  parentCloneShape?: BoxShape,
 ) => {
   const cloneShapeId = !parentCloneShape ? rootCloneShapeId : createShapeId();
   editor.createShape({

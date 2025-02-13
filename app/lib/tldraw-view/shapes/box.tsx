@@ -25,6 +25,8 @@ import {
 } from "../utils/layout";
 import { DroppableShape } from "./droppable";
 
+export const INTRINSIC_GAP = 8;
+
 export type BoxShapeProps = {
   index: IndexKey;
   depth: number;
@@ -84,13 +86,13 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
       originalX: 0,
       originalY: 0,
       direction: "horizontal",
-      alignX: "left",
-      alignY: "top",
-      gap: 0,
-      pl: 0,
-      pr: 0,
-      pt: 0,
-      pb: 0,
+      alignX: "center",
+      alignY: "center",
+      gap: INTRINSIC_GAP,
+      pl: INTRINSIC_GAP,
+      pr: INTRINSIC_GAP,
+      pt: INTRINSIC_GAP,
+      pb: INTRINSIC_GAP,
       color: "lightpink",
       dragging: false,
     };
@@ -417,10 +419,38 @@ export class BoxShapeUtil extends BaseBoxShapeUtil<BoxShape> {
   }
 
   override component(shape: BoxShape) {
+    const depth = shape.props.depth;
+    let backgroundColor = shape.props.color;
+    let border = "none";
+    if (depth === 0) {
+      backgroundColor = "white";
+      border = "0.5px solid #e8e8ec";
+    } else if (depth === 1) {
+      backgroundColor = "#E6F4FE";
+    } else if (depth === 2) {
+      backgroundColor = "#c2e5ff";
+    } else if (depth === 3) {
+      backgroundColor = "#acd8fc";
+    } else if (depth === 4) {
+      backgroundColor = "#8ec8f6";
+    } else if (depth === 5) {
+      backgroundColor = "#5eb1ef";
+    } else if (depth === 6) {
+      backgroundColor = "#0090ff";
+    } else if (depth === 7) {
+      backgroundColor = "#0588f0";
+    } else if (depth === 8) {
+      backgroundColor = "#0d74ce";
+    }
+
     return (
       <HTMLContainer
         style={{
-          backgroundColor: shape.props.color,
+          // backgroundColor: shape.props.color,
+          fontSize: 6,
+          backgroundColor,
+          border,
+          borderRadius: 2,
           width: shape.props.w,
           height: shape.props.h,
           opacity: shape.props.dragging ? 0 : 1,

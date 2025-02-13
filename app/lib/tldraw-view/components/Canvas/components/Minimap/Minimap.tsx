@@ -12,7 +12,7 @@ export const Minimap: FC<MinimapProps> = () => {
 
   if (!selectedShapes.length || selectedShapes.length > 1) {
     return (
-      <div className={cn("bg-gray-2 flex h-[160px] flex-col rounded-sm")} />
+      <div className={cn("bg-gray-2 flex h-[140px] flex-col rounded-sm")} />
     );
   }
 
@@ -20,10 +20,8 @@ export const Minimap: FC<MinimapProps> = () => {
 
   console.log("selectedShape", selectedShape);
 
-  const getPaddings = () => {};
-
   return (
-    <div className={cn("bg-gray-2 flex h-[160px] flex-col rounded-sm")}>
+    <div className={cn("bg-gray-2 flex h-[140px] flex-col rounded-sm")}>
       <div
         className={cn(
           "flex h-6 items-center justify-center overflow-hidden",
@@ -44,12 +42,12 @@ export const Minimap: FC<MinimapProps> = () => {
         <div
           className={cn(
             "flex flex-1",
-            selectedShape.props.alignX === "left" && "items-start",
-            selectedShape.props.alignX === "center" && "items-center",
-            selectedShape.props.alignX === "right" && "items-end",
-            selectedShape.props.alignY === "top" && "justify-start",
-            selectedShape.props.alignY === "center" && "justify-center",
-            selectedShape.props.alignY === "bottom" && "justify-end",
+            selectedShape.props.alignX === "left" && "justify-start",
+            selectedShape.props.alignX === "center" && "justify-center",
+            selectedShape.props.alignX === "right" && "justify-end",
+            selectedShape.props.alignY === "top" && "items-start",
+            selectedShape.props.alignY === "center" && "items-center",
+            selectedShape.props.alignY === "bottom" && "items-end",
           )}
         >
           <div

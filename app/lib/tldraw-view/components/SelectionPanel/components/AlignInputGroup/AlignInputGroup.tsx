@@ -16,7 +16,7 @@ export const AlignInputGroup: FC<AlignInputGroupProps> = ({
   return (
     <div
       className={cn([
-        "bg-gray-2 grid h-[56px] grid-flow-col grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 rounded-xs p-1",
+        "bg-gray-2 grid h-[56px] grid-flow-row grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 rounded-xs p-1",
         className,
       ])}
     >

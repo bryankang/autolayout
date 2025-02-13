@@ -403,7 +403,7 @@
 
 .rt-TextFieldInput {
   &:where(:disabled, :read-only) {
-    cursor: text;
+    cursor: default;
     color: var(--gray-a11);
     /* Safari */
     -webkit-text-fill-color: var(--gray-a11);

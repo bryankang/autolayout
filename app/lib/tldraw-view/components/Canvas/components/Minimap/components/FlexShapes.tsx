@@ -3,6 +3,7 @@ import { FC, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { cn } from "~/styles/utils";
 import { PaddingIndicator } from "./PaddingIndicator";
+import { INTRINSIC_GAP } from "~/lib/tldraw-view/shapes/box";
 
 export type FlexShapesProps = {
   direction: string;
@@ -20,7 +21,12 @@ export const FlexShapes: FC<FlexShapesProps> = ({
   return (
     <div
       className={cn(
-        container({ direction, alignX, alignY, hasGap: gap > 0 } as any),
+        container({
+          direction,
+          alignX,
+          alignY,
+          hasGap: gap > INTRINSIC_GAP,
+        } as any),
       )}
     >
       <div
@@ -52,14 +58,14 @@ const containerVariants = cva("flex flex-1", {
       vertical: "flex-col",
     },
     alignX: {
-      left: "items-start",
-      center: "items-center",
-      right: "items-end",
+      left: "justify-start",
+      center: "justify-center",
+      right: "justify-end",
     },
     alignY: {
-      top: "justify-start",
-      center: "justify-center",
-      bottom: "justify-end",
+      top: "items-start",
+      center: "items-center",
+      bottom: "items-end",
     },
     hasGap: {
       true: "gap-[6px]",

@@ -45,7 +45,7 @@ export const TldrawProvider: FC<TldrawProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!editor) return;
     const handleEvent = (e: TLEventInfo) => {
-      if (e.type === "pointer" && e.name === "pointer_down") {
+      if (e.type === "pointer" && e.name === "pointer_up") {
         setSelectedShapes(editor.getSelectedShapes() as BoxShape[]);
       }
     };

@@ -52,9 +52,10 @@ export class DroppableShapeUtil extends BaseBoxShapeUtil<DroppableShape> {
     return (
       <HTMLContainer
         style={{
-          width: shape.props.w,
+          // width: shape.props.w,
+          width: 1,
           height: shape.props.h,
-          backgroundColor: "blue",
+          backgroundColor: "#0090ff",
           opacity: shape.props.active ? 1 : 0,
         }}
       />

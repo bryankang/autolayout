@@ -1,6 +1,8 @@
 import { FC } from "react";
 import {
   createShapeId,
+  DefaultBackground,
+  DefaultCanvas,
   IndexKey,
   Tldraw,
   TLUiActionsContextType,
@@ -36,6 +38,7 @@ export const Canvas: FC = () => {
               };
 
               delete newActions.delete;
+              delete newActions["select-all"];
 
               return newActions;
             },
@@ -73,14 +76,14 @@ export const Canvas: FC = () => {
             editor.createShape<BoxShape>({
               type: "box",
               id: rootId,
-              x: -200 / 2,
-              y: -200 / 2,
+              x: -400 / 2,
+              y: -400 / 2,
               props: {
                 index: "a0" as IndexKey,
                 depth: 0,
                 color: "lightgray",
-                w: 200,
-                h: 200,
+                w: 400,
+                h: 400,
                 fullWidth: false,
                 fullHeight: false,
                 // direction: "vertical",
@@ -88,10 +91,10 @@ export const Canvas: FC = () => {
                 alignX: "center",
                 alignY: "center",
                 // gap: 8,
-                pl: 0,
-                pr: 8,
-                pt: 8,
-                pb: 8,
+                // pl: 0,
+                // pr: 8,
+                // pt: 8,
+                // pb: 8,
               },
             });
 
@@ -103,69 +106,67 @@ export const Canvas: FC = () => {
               props: {
                 index: "a2",
                 depth: 1,
-                fullWidth: false,
-                w: 20,
                 // alignX: "center",
                 // alignY: "center",
-                gap: 8,
-                pl: 0,
-                pr: 8,
-                pt: 8,
-                pb: 8,
+                // gap: 8,
+                // pl: 0,
+                // pr: 8,
+                // pt: 8,
+                // pb: 8,
               },
             });
 
-            editor.createShape({
-              id: secondId,
-              type: "box",
-              x: 0,
-              y: 0,
-              props: {
-                index: "a3",
-                depth: 1,
-                color: "lightblue",
-                gap: 12,
-              },
-            });
+            // editor.createShape({
+            //   id: secondId,
+            //   type: "box",
+            //   x: 0,
+            //   y: 0,
+            //   props: {
+            //     index: "a3",
+            //     depth: 1,
+            //     color: "lightblue",
+            //     gap: 12,
+            //   },
+            // });
 
-            editor.createShape({
-              id: thirdId,
-              type: "box",
-              x: 0,
-              y: 0,
-              props: {
-                index: "a4",
-                depth: 1,
-                color: "salmon",
-                w: 10,
-                fullWidth: false,
-                // fullHeight: false,
-              },
-            });
+            // editor.createShape({
+            //   id: thirdId,
+            //   type: "box",
+            //   x: 0,
+            //   y: 0,
+            //   props: {
+            //     index: "a4",
+            //     depth: 1,
+            //     color: "salmon",
+            //     w: 10,
+            //     fullWidth: false,
+            //     // fullHeight: false,
+            //   },
+            // });
 
-            editor.createShape({
-              id: fourthId,
-              type: "box",
-              x: 0,
-              y: 0,
-              props: {
-                index: "a5",
-                depth: 2,
-                color: "teal",
-              },
-            });
+            // editor.createShape({
+            //   id: fourthId,
+            //   type: "box",
+            //   x: 0,
+            //   y: 0,
+            //   props: {
+            //     index: "a5",
+            //     depth: 2,
+            //     color: "teal",
+            //   },
+            // });
 
-            editor.createShape({
-              id: fifthId,
-              type: "box",
-              x: 0,
-              y: 0,
-              props: {
-                index: "a6",
-                depth: 2,
-                color: "purple",
-              },
-            });
+            // editor.createShape({
+            //   id: fifthId,
+            //   type: "box",
+            //   x: 0,
+            //   y: 0,
+            //   props: {
+            //     index: "a6",
+            //     depth: 2,
+            //     color: "purple",
+            //   },
+            // });
 
             editor.createBinding({
               type: "layout",
@@ -173,48 +174,36 @@ export const Canvas: FC = () => {
               toId: firstId,
             });
 
-            editor.createBinding({
-              type: "layout",
-              fromId: rootId,
-              toId: secondId,
-            });
+            // editor.createBinding({
+            //   type: "layout",
+            //   fromId: rootId,
+            //   toId: secondId,
+            // });
 
-            editor.createBinding({
-              type: "layout",
-              fromId: rootId,
-              toId: thirdId,
-            });
+            // editor.createBinding({
+            //   type: "layout",
+            //   fromId: rootId,
+            //   toId: thirdId,
+            // });
 
-            editor.createBinding({
-              type: "layout",
-              fromId: secondId,
-              toId: fourthId,
-            });
+            // editor.createBinding({
+            //   type: "layout",
+            //   fromId: secondId,
+            //   toId: fourthId,
+            // });
 
-            editor.createBinding({
-              type: "layout",
-              fromId: secondId,
-              toId: fifthId,
-            });
+            // editor.createBinding({
+            //   type: "layout",
+            //   fromId: secondId,
+            //   toId: fifthId,
+            // });
 
             const rootShape = editor.getShape(rootId) as BoxShape;
             const firstShape = editor.getShape(firstId) as BoxShape;
 
-            console.log("firstShape", firstShape);
-
             layout(editor, rootShape);
 
             editor.select(rootShape);
-
-            setTimeout(() => {
-              const secondShape = editor.getShape(firstId) as BoxShape;
-
-              const transform = editor.getShapePageTransform(rootShape);
-              const a = transform.applyToPoint(secondShape);
-              console.log("transform", transform);
-              console.log("a", a);
-              console.log("s", rootShape.x);
-            });
 
             console.log("store", editor.getSnapshot().document.store);
           }}
