@@ -179,6 +179,11 @@ export const Shortcuts = () => {
     });
 
     hotkeys("left,up,right,down", (e) => {
+      const tool = editor.getCurrentTool();
+      if (tool.id !== "select") return;
+      tool.onKeyDown = () => {};
+      tool.onKeyUp = () => {};
+
       const selectedShapes = editor.getSelectedShapes() as BoxShape[];
       if (selectedShapes.length === 0) {
         return;

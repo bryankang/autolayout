@@ -1,4 +1,5 @@
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { CaretDown } from "@phosphor-icons/react/dist/icons/CaretDown";
+import { Check } from "@phosphor-icons/react/dist/icons/Check";
 import { FC, useEffect, useState } from "react";
 import { DropdownMenu, TextField } from "~/lib/radix-themes";
 import { cn } from "~/styles/utils";

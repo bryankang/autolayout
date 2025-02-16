@@ -3,7 +3,9 @@ const path = require("path");
 const postcss = require("postcss");
 
 // Build a list of breakpoints from "@custom media" rules in "breakpoints.css"
-const breakpointsFile = path.resolve("./app/lib/ui/styles/breakpoints.css");
+const breakpointsFile = path.resolve(
+  "./app/lib/radix-themes/styles/breakpoints.css",
+);
 const breakpointsCss = fs.readFileSync(breakpointsFile, "utf-8");
 const breakpoints = postcss
   .parse(breakpointsCss)

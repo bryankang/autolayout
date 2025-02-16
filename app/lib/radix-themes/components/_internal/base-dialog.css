@@ -51,7 +51,7 @@
   box-sizing: border-box;
 
   background-color: var(--color-panel-solid);
-  box-shadow: var(--shadow-6);
+  box-shadow: var(--shadow-4);
   outline: none;
 }
 
@@ -65,19 +65,19 @@
   .rt-BaseDialogContent {
     &:where(.rt-r-size-1) {
       --dialog-content-padding: var(--space-3);
-      border-radius: var(--radius-4);
+      border-radius: var(--radius-2);
     }
     &:where(.rt-r-size-2) {
       --dialog-content-padding: var(--space-4);
-      border-radius: var(--radius-4);
+      border-radius: var(--radius-2);
     }
     &:where(.rt-r-size-3) {
       --dialog-content-padding: var(--space-5);
-      border-radius: var(--radius-5);
+      border-radius: var(--radius-3);
     }
     &:where(.rt-r-size-4) {
       --dialog-content-padding: var(--space-6);
-      border-radius: var(--radius-5);
+      border-radius: var(--radius-3);
     }
   }
 }

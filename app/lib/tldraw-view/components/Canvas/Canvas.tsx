@@ -4,9 +4,13 @@ import {
   DefaultBackground,
   DefaultCanvas,
   IndexKey,
+  SelectTool,
+  defaultTools,
   Tldraw,
+  TLStateNodeConstructor,
   TLUiActionsContextType,
   Vec,
+  DefaultSizeStyle,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { LayoutBindingUtil } from "../../bindings/layout";
@@ -18,6 +22,34 @@ import { useTldrawContext } from "../../contexts/TldrawContext";
 import { Shortcuts } from "./components/Shortcuts/Shortcuts";
 import { Minimap } from "./components/Minimap/Minimap";
 
+DefaultSizeStyle.setDefaultValue("s");
+
+class CustomSelectTool extends SelectTool {
+  static override children(): TLStateNodeConstructor[] {
+    return super.children().filter((c) => c.id !== "idle");
+    // return [
+    // 	Crop,
+    // 	Cropping,
+    // 	// Idle,
+    // 	PointingCanvas,
+    // 	PointingShape,
+    // 	Translating,
+    // 	Brushing,
+    // 	ScribbleBrushing,
+    // 	PointingCropHandle,
+    // 	PointingSelection,
+    // 	PointingResizeHandle,
+    // 	EditingShape,
+    // 	Resizing,
+    // 	Rotating,
+    // 	PointingRotateHandle,
+    // 	PointingArrowLabel,
+    // 	PointingHandle,
+    // 	DraggingHandle,
+    // ]
+  }
+}
+
 export const Canvas: FC = () => {
   const { setEditor } = useTldrawContext();
 
@@ -26,6 +58,12 @@ export const Canvas: FC = () => {
       <div className="h-full grow">
         <Tldraw
           cameraOptions={{}}
+          // tools={[CustomSelectTool]}
+          // assetUrls={{
+          //   fonts: {
+          //     draw: "/fonts/Inter.ttf",
+          //   },
+          // }}
           shapeUtils={[BoxShapeUtil, DroppableShapeUtil]}
           bindingUtils={[LayoutBindingUtil]}
           hideUi
